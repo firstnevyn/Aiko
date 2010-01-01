@@ -315,8 +315,8 @@ void lightSensorHandler(void) {
 
 #ifdef HAS_POT
 int potValue = 0;
-int rawPotValue = 0; // store the raw value from the pin globally to avoid a
-                     // divide on every call of the handler
+int rawPotValue = 2048; // store the raw value from the pin globally to avoid a
+                        // divide on every call of the handler
 
 void potInputHandler(void) {
   int newRawPotValue = 0;
