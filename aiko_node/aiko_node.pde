@@ -76,6 +76,7 @@ using namespace Aiko;
 #define HAS_HP_LD220  // Hewlett-Packard Point-Of-Sale sign
 #define HAS_SENSORS
 #define HAS_SPEAKER
+#define HAS_POT
 #endif
 
 #ifdef IS_STONE
@@ -103,6 +104,7 @@ using namespace Aiko;
 #ifdef IS_PEBBLE
 // Analogue Input pins
 #define PIN_LIGHT_SENSOR    0
+#define PIN_POT             1
 // Digital Input/Output pins
 #define PIN_LCD_STROBE      2 // CD4094 8-bit shift/latch
 #define PIN_LCD_DATA        3 // CD4094 8-bit shift/latch
@@ -195,6 +197,10 @@ void setup() {
 #ifdef HAS_SENSORS
   Events.addHandler(lightSensorHandler,       1000 * DEFAULT_TRANSMIT_RATE);
   Events.addHandler(temperatureSensorHandler, 1000 * DEFAULT_TRANSMIT_RATE);
+#endif
+
+#ifdef HAS_POT
+  Events.addHandler(potInputHandler,       100 * DEFAULT_TRANSMIT_RATE);
 #endif
 
 #ifdef HAS_SERIAL_MIRROR
@@ -296,6 +302,23 @@ void lightSensorHandler(void) {
   globalString += lightValue;
   globalString += " lux)";
   sendMessage(globalString);
+}
+#endif
+
+/* -------------------------------------------------------------------------- */
+
+#ifdef HAS_POT
+int potValue = 0;
+int rawPotValue = 0; // store the raw value from the pin globally to avoid a
+                     // divide on every call of the handler
+
+void potInputHandler(void) {
+  int newRawPotValue = 0;
+  newRawPotValue = analogRead(PIN_POT);
+  if (newRawPotValue != rawPotValue) {
+    rawPotValue = newRawPotValue;
+    potValue = (1023 - rawPotValue)*10/102;
+  }
 }
 #endif
 
@@ -735,6 +758,13 @@ void lcdHandler(void) {
   lcdWriteNumber(temperature_fraction);
   lcdWriteString(" C  ");
 #endif
+
+#ifdef HAS_POT
+  lcdPosition(0,28);
+  lcdWriteNumber(potValue);
+  lcdWriteString("  ");
+#endif
+
 }
 
 /* -------------------------------------------------------------------------- */
