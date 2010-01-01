@@ -331,10 +331,36 @@ void potInputHandler(void) {
 /* -------------------------------------------------------------------------- */
 
 #ifdef HAS_LADDER_BUTTONS
-int buttonValue = 0;
+int rawButtonValue = 2048; // initialise so that the first run reads pinvalue
+int buttonValue = 9; //raw value from button 
 
 void ladderButtonInputHandler(void) {
-  buttonValue = analogRead(PIN_LADDER_BUTTONS);
+  int newRawButtonValue = 0;
+  newRawButtonValue = analogRead(PIN_LADDER_BUTTONS);
+
+  if (newRawButtonValue != rawButtonValue)
+    {
+      rawButtonValue = newRawButtonValue;
+      switch (rawButtonValue) {
+        case 0 ... 385: buttonValue = 7;
+                break;
+        case 400 ... 420: buttonValue = 6;
+                  break; 
+        case 440 ... 460: buttonValue = 5;
+                  break;
+        case 490 ... 520: buttonValue = 4;
+                  break;
+        case 585 ... 615: buttonValue = 3;
+                  break;
+        case 685 ... 715: buttonValue = 2;
+                  break;
+        case 800 ... 830: buttonValue = 1;
+                  break;
+        case 1000 ... 1023: buttonValue = 0;
+                  break;
+        default: buttonValue = 9;
+      }
+    }
 }
 #endif
 
@@ -784,9 +810,13 @@ void lcdHandler(void) {
 #ifdef HAS_LADDER_BUTTONS
   lcdPosition(0,20);
   lcdWriteNumber(buttonValue);
-  lcdWriteString("   ");
 #endif
 
+#ifdef LADDER_BUTTON_DEBUG
+  lcdPosition(1,20);
+  lcdWriteNumber(rawButtonValue);
+  lcdWriteString("   ");
+#endif
 }
 
 /* -------------------------------------------------------------------------- */
