@@ -77,6 +77,7 @@ using namespace Aiko;
 #define HAS_SENSORS
 #define HAS_SPEAKER
 #define HAS_POT
+#define HAS_LADDER_BUTTONS
 #endif
 
 #ifdef IS_STONE
@@ -105,6 +106,7 @@ using namespace Aiko;
 // Analogue Input pins
 #define PIN_LIGHT_SENSOR    0
 #define PIN_POT             1
+#define PIN_LADDER_BUTTONS  2
 // Digital Input/Output pins
 #define PIN_LCD_STROBE      2 // CD4094 8-bit shift/latch
 #define PIN_LCD_DATA        3 // CD4094 8-bit shift/latch
@@ -201,6 +203,10 @@ void setup() {
 
 #ifdef HAS_POT
   Events.addHandler(potInputHandler,       100 * DEFAULT_TRANSMIT_RATE);
+#endif
+
+#ifdef HAS_LADDER_BUTTONS
+  Events.addHandler(ladderButtonInputHandler,       100 * DEFAULT_TRANSMIT_RATE);
 #endif
 
 #ifdef HAS_SERIAL_MIRROR
@@ -319,6 +325,16 @@ void potInputHandler(void) {
     rawPotValue = newRawPotValue;
     potValue = (1023 - rawPotValue)*10/102;
   }
+}
+#endif
+
+/* -------------------------------------------------------------------------- */
+
+#ifdef HAS_LADDER_BUTTONS
+int buttonValue = 0;
+
+void ladderButtonInputHandler(void) {
+  buttonValue = analogRead(PIN_LADDER_BUTTONS);
 }
 #endif
 
@@ -763,6 +779,12 @@ void lcdHandler(void) {
   lcdPosition(0,28);
   lcdWriteNumber(potValue);
   lcdWriteString("  ");
+#endif
+
+#ifdef HAS_LADDER_BUTTONS
+  lcdPosition(0,20);
+  lcdWriteNumber(buttonValue);
+  lcdWriteString("   ");
 #endif
 
 }
