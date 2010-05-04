@@ -73,6 +73,7 @@
 //#define HAS_HP_LD220  // Hewlett-Packard Point-Of-Sale sign
 #define ENABLE_AIKO_DEVICE_POTENTIOMETER
 #define HAS_SENSORS
+#define ENABLE_AIKO_DEVICE_LDR
 //#define HAS_SPEAKER
 #endif
 
@@ -163,8 +164,12 @@ void setup() {
   Events.addHandler(potentiometerHandler, 100);
 #endif
 
+#ifdef ENABLE_AIKO_DEVICE_LDR
+  Events.addHandler(ldrHandler, 1000 * DEFAULT_TRANSMIT_RATE);
+  Events.addHandler(lightSensorHandler, 1000 * DEFAULT_TRANSMIT_RATE); // just sends serial message
+#endif
+
 #ifdef HAS_SENSORS
-  Events.addHandler(lightSensorHandler,       1000 * DEFAULT_TRANSMIT_RATE);
   Events.addHandler(temperatureSensorHandler, 1000 * DEFAULT_TRANSMIT_RATE);
 #endif
 
@@ -189,15 +194,13 @@ void loop() {
 
 /* -------------------------------------------------------------------------- */
 
-#ifdef HAS_SENSORS
-int lightValue = 0;
+#ifdef ENABLE_AIKO_DEVICE_LDR
 
 void lightSensorHandler(void) {
-  lightValue = analogRead(PIN_LIGHT_SENSOR);
 
   globalString.begin();
   globalString  = "(light_lux ";
-  globalString += lightValue;
+  globalString += ldrValue;
   globalString += " lux)";
   sendMessage(globalString);
 }
@@ -657,10 +660,6 @@ void lcdHandler(void) {
   lcdWriteNumber((int) second);
 
 #ifdef HAS_SENSORS
-  lcdPosition(1, 0);
-  lcdWriteString("Lux ");
-  lcdWriteNumber(lightValue);
-  lcdWriteString("  ");
 
   lcdPosition(1, 9);
   lcdWriteNumber(temperature_whole);
@@ -692,6 +691,13 @@ void lcdHandler(void) {
   lcdWriteString("Pot ");
   lcdWriteNumber(potentiometerValue);
   lcdWriteString("   ");
+#endif
+
+#ifdef ENABLE_AIKO_DEVICE_LDR
+  lcdPosition(1, 0);
+  lcdWriteString("Lux ");
+  lcdWriteNumber(ldrValue);
+  lcdWriteString("  ");
 #endif
 }
 

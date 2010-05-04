@@ -7,5 +7,6 @@ namespace Aiko {
 #include "aiko_devices/AikoDeviceBlink.cpp"
 #include "aiko_devices/AikoDeviceButton.cpp"
 #include "aiko_devices/AikoDevicePotentiometer.cpp"
+#include "aiko_devices/AikoDeviceLDR.cpp"
   }
 }
